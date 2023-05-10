@@ -6,13 +6,17 @@ import logging
 import os
 import sys
 from datetime import datetime
+from urllib.parse import urlparse, urlunparse
 
 import tweepy
 
 from reporting import generate_reporting
 from secrets import *
 
-TARGET_USER = sys.argv[1]
+try:
+    TARGET_USER = sys.argv[1]
+except Exception as e:
+    TARGET_USER = None
 
 api = None
 
@@ -76,8 +80,17 @@ def get_new_likes(old_likes_ids):
             if "media" in status.extended_entities:
                 like["medias"] = []
                 for media in status.extended_entities['media']:
-                    if media["type"] in ("photo", "animated_gif", "video"):  # for videos we get the thumbnail
+                    # images go to medias key
+                    if media["type"] in ("photo", "animated_gif", "video"):
                         like["medias"].append(media["media_url_https"])
+                    # moving things go to videos key
+                    if media["type"] in ("animated_gif", "video"):
+                        if 'videos' not in like.keys():
+                            like['videos'] = []
+                        video_variants = { v.get('bitrate') : v.get('url') for v in media["video_info"].get('variants') if "video/" in v.get('content_type') }
+                        url_of_biggest_bitrate = video_variants[max(video_variants.keys())]
+                        clean_video_url = urlunparse(urlparse(url_of_biggest_bitrate)._replace(query='',params='',fragment=''))
+                        like["videos"].append(clean_video_url)
 
         like["profile_image_url_https"] = status.user.profile_image_url_https
         like["screen_name"] = status.user.screen_name
@@ -86,6 +99,27 @@ def get_new_likes(old_likes_ids):
         like["created_at"] = status.created_at.isoformat()
 
     return likes
+
+def sample_liked_tweets():
+    global api
+
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+    print(str(datetime.now()) + " Start")
+
+    # This handles Twitter authentication and the connection to Twitter Search API
+    # we don't use the streaming API for this script
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    print('Authenticating with OAuth + Twitter API')
+    api = tweepy.API(auth)  
+    
+    return tweepy.Cursor(api.favorites,
+                                TARGET_USER,
+                                count=10,
+                                tweet_mode="extended"  # get content in new 280 chars limitation
+                                ).items()
+  
 
 
 def main():
