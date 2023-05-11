@@ -4,3 +4,5 @@
 /html_output*
 /secrets.py
 /data/likes_*.json
+/data/
+/data_run*

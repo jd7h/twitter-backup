@@ -44,7 +44,7 @@
 </head>
 <body>
 {% for like in likes %}
-    <img src="{{ like['profile_image_url_https'] }}" />
+    <img src="../{{ like['profile_image_url_local'] }}" />
     <a href="https://twitter.com/{{ like['screen_name'] }}">@{{ like['screen_name'] }}</a> - {{ like['name'] }}
 
     <br />
@@ -53,8 +53,16 @@
     <br />
     {{ like['text'] }}
 
-    {% for media in like['medias'] %}
-        <br /><img src="{{ media }}" class="media" />
+    {% for media in like['medias_local'] %}
+        <br /><img src="../{{ media }}" class="media" />
+    {% endfor %}
+    
+    {% for video in like['videos_local'] %}
+    <br />
+    <video style='max-width:100%;' controls>
+    <source src="../{{ video }}" type="video/mp4">
+    Your browser does not support the video tag.
+    </video>
     {% endfor %}
     <hr />
 {% endfor %}

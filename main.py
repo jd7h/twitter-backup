@@ -44,10 +44,10 @@ def get_new_likes(old_likes_ids):
     """
     # first pass over the obtained statuses
     liked_statuses = []
-    for status in tweepy.Cursor(api.favorites,
+    for status in tweepy.Cursor(api.get_favorites,
                                 TARGET_USER,
                                 count=200,
-                                tweet_mode="extended"  # get content in new 280 chars limitation
+                                include_entities=True
                                 ).items():
         # skip the ones we already know
         if status.id in old_likes_ids:
@@ -100,6 +100,7 @@ def get_new_likes(old_likes_ids):
 
     return likes
 
+
 def sample_liked_tweets():
     global api
 
@@ -109,16 +110,12 @@ def sample_liked_tweets():
 
     # This handles Twitter authentication and the connection to Twitter Search API
     # we don't use the streaming API for this script
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
+    # old authentication method
+    auth = tweepy.OAuth1UserHandler(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN_KEY, ACCESS_SECRET)
     print('Authenticating with OAuth + Twitter API')
     api = tweepy.API(auth)  
     
-    return tweepy.Cursor(api.favorites,
-                                TARGET_USER,
-                                count=10,
-                                tweet_mode="extended"  # get content in new 280 chars limitation
-                                ).items()
+    return tweepy.Cursor(api.get_favorites, TARGET_USER, count=10, include_entities=True).items()
   
 
 
@@ -129,9 +126,9 @@ def main():
 
     print(str(datetime.now()) + " Start")
 
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_TOKEN_KEY, ACCESS_SECRET)
-    api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
+    auth = tweepy.OAuth1UserHandler(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN_KEY, ACCESS_SECRET)
+    print('Authenticating with OAuth + Twitter API')
+    api = tweepy.API(auth) 
 
     # we have a cache of the already known liked tweets, so we don't re-fetch them and we keep them if they're deleted
     # or unliked!
