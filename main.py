@@ -23,9 +23,9 @@ def get_statuses(twitter_api_method, old_ids, limit=None):
         raise ValueError
 
     if twitter_api_method == 'tweets':
-        cursor = tweepy.Cursor(api.user_timeline, count=200, tweet_mode="extended").items(limit=limit)
+        cursor = tweepy.Cursor(api.user_timeline, screen_name=TARGET_USER, count=200, tweet_mode="extended").items(limit=limit)
     elif twitter_api_method == 'likes':
-        cursor = tweepy.Cursor(api.get_favorites, count=200, include_entities=True, tweet_mode="extended").items(limit=limit)
+        cursor = tweepy.Cursor(api.get_favorites, screen_name=TARGET_USER, count=200, include_entities=True, tweet_mode="extended").items(limit=limit)
 
     # first pass over the obtained statuses
     found_statuses = []

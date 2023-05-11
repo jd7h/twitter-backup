@@ -1,3 +1,4 @@
+import sys
 import json
 import shutil
 from pathlib import Path
@@ -12,10 +13,11 @@ USER_DIR = DATA_ROOT / TARGET_USER
 
 LIKES_FILE = USER_DIR / "likes.json" # clean data
 LIKES_CACHE = USER_DIR / "likes_cache.json" # full data
+LIKES_HTML = USER_DIR / "likes.html"
 
 TWEETS_FILE = USER_DIR / "tweets.json" # clean data
 TWEETS_CACHE = USER_DIR / "tweets_cache.json" # full data
-
+TWEETS_HTML = USER_DIR / "tweets.html"
 
 AVATAR_DIR = USER_DIR / "avatars"
 MEDIA_DIR = USER_DIR / "images"
